@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 
 <html lang="en">
@@ -16,7 +17,7 @@
 
 </head>
 
-<body class="bg-light">
+<body class="bg-light" onload = "Tablefunction()">
 
 <div class="container-fluid p-5 bg-dark text-white text-center">
 
@@ -93,10 +94,28 @@
 </div>
 
 <p class="container" id="ErrInfo">告警信息：无</p>
+<p>&ensp;</p>
+<div class="container mt-3">
+  <h1>告警信息解析列表</h1>
+  <p>AFE和APF的告警码是通过bit位来进行解析的，以下是每位的解析结果。</p>
+  <table class="table" if="ErrTable">
+    <thead>
+      <tr>
+        <th>告警位</th>
+        <th>告警内容</th>
+        <th>位状态</th>
+      </tr>
+    </thead>
+    <tbody id="tbody1">
+    </tbody>
+  </table>
+</div>
+
 
 <div class="container text-dark p-6">
-<p>  </p>
-
+<p>&ensp;</p>
+<p>&ensp;</p>
+<p>&ensp;</p>
 </div>
 
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-bottom">
@@ -110,6 +129,41 @@
 </nav>
 
 <script>
+var ErrTextGroup= [
+
+"电源逆相", "输入过压", "输入欠压", "相电压失效", "相电流差异过大", "相电流方向错误", "预留", "电流传感器逆相", 
+
+"电压传感器逆相", "电网电压不平衡", "电网电流不平衡", "相电感失效", "缺相", "电网频率过高", "电网频率过低", "硬过流",
+
+"软过流", "软件过载", "过温", "温感失效", "母线过压", "母线欠压", "与主机通信故障", "与从机通信故障", 
+
+"THDi异常", "THDv异常", "外部故障1", "外部故障2", "硬件过压", "预留", "预留", "预留"
+
+];
+function Tablefunction()
+{
+var CodeTable = document.getElementById("tbody1");
+for (var i=1;i<=32;i++)
+{ 
+	var tr = document.createElement("tr");
+	var td1 = document.createElement("td");
+	var td2 = document.createElement("td");
+	var td3 = document.createElement("td");
+    tr.id = "trid" + i.toString();
+    tr.className = "table-secondary"
+    td1.innerHTML = i;
+    td2.innerHTML = ErrTextGroup[i-1];
+    td3.innerHTML = 0;
+    td1.id = "td1id" + i.toString();
+    td2.id = "td2id" + i.toString();
+    td3.id = "td3id" + i.toString();
+	tr.appendChild(td1);
+	tr.appendChild(td2);
+    tr.appendChild(td3);
+	CodeTable.appendChild(tr);
+}
+};
+
 
 function GetErrCode(ErrCode10,bit){
 
@@ -138,34 +192,26 @@ function GetErrCode16(code){
 }
 
 function GetErrInfoText(ErrCode10){
-
 var ErrText = "";
-
-var ErrTextGroup= [
-
-"电源逆相", "输入过压", "输入欠压", "相电压失效", "相电流差异过大", "相电流方向错误", "预留", "电流传感器逆相", 
-
-"电压传感器逆相", "电网电压不平衡", "电网电流不平衡", "相电感失效", "缺相", "电网频率过高", "电网频率过低", "硬过流",
-
-"软过流", "软件过载", "过温", "温感失效", "母线过压", "母线欠压", "与主机通信故障", "与从机通信故障", 
-
-"THDi异常", "THDv异常", "外部故障1", "外部故障2", "硬件过压", "预留", "预留", "预留"
-
-];
-
-for (var i=0;i<32;i++)
-
+var CodeSta = "0";
+var CodeTable = document.getElementById("tbody1");
+for (var i=1;i<=32;i++)
 { 
-
-    if(GetErrCode(ErrCode10,i) == "1")
-
+	var tr = document.getElementById("trid" + i.toString());
+	var td3 = document.getElementById("td3id" + i.toString());
+	CodeSta = GetErrCode(ErrCode10,i)
+    td3.innerHTML = CodeSta;
+    if(CodeSta == "1")
     {
-
+    	tr.className = "table-danger"
     	ErrText = ErrText + ErrTextGroup[i-1] + " ";
-
     }
-
+    else
+    {
+    	tr.className = "table-secondary"
+    }
 }
+
 
 return ErrText;
 
