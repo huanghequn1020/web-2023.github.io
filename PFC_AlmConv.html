@@ -8,7 +8,7 @@
 
 <head>
 
-  <title>AFE和APF告警码在线解析工具</title>
+  <title>单相PFC告警码解析工具</title>
 
   <meta charset="utf-8">
 
@@ -34,17 +34,17 @@
 		<li class="nav-item dropdown">
 		  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">告警码转换</a>
 		  <ul class="dropdown-menu">
-			<li><a class="dropdown-item" href="/toolweb//index.html">AFE和APF</a></li>
-      <li><a class="dropdown-item" href="/toolweb//PFC_AlmConv.html">单相PFC</a></li>
-			<li><a class="dropdown-item" href="/toolweb//VFD_AlmConv.html">自制变频器</a></li>
-			<li><a class="dropdown-item" href="#">冷凝风机控制板</a></li>
+			  <li><a class="dropdown-item" href="/toolweb//index.html">AFE和APF</a></li>
+        <li><a class="dropdown-item" href="/toolweb//PFC_AlmConv.html">单相PFC</a></li>
+			  <li><a class="dropdown-item" href="/toolweb//VFD_AlmConv.html">自制变频器</a></li>
+			  <li><a class="dropdown-item" href="#">冷凝风机控制板</a></li>
 		  </ul>
 		</li>
 		<li class="nav-item dropdown">
 		  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">通信协议</a>
 		  <ul class="dropdown-menu">
-			<li><a class="dropdown-item" href="/toolweb//index.html">AFE和APF</a></li>
-      <li><a class="dropdown-item" href="/toolweb//PFC_AlmConv.html">单相PFC</a></li>
+			<li><a class="dropdown-item" href="/toolweb/index.html">AFE和APF</a></li>
+            <li><a class="dropdown-item" href="/toolweb/PFC_AlmConv.html">单相PFC</a></li>
 			<li><a class="dropdown-item" href="#">自制变频器</a></li>
 			<li><a class="dropdown-item" href="#">冷凝风机控制板</a></li>
 		  </ul>
@@ -64,50 +64,31 @@
 
 <div class="container-fluid p-5 bg-dark text-white text-center">
 
-  <h1>AFE和APF告警码解析</h1>
+  <h1>单相PFC告警码解析工具</h1>
 
-  <p>输入告警码可以解析出具体告警内容<br>V0003</p> 
-
-</div>
-
-<div class="container form-floating mb-3 mt-3">
-
-	<input type="text" class="form-control" id="ErrInput1" placeholder=" ">	<label for="email">&ensp;&ensp;在此输入告警码1 - Modbus地址32768</label>
+  <p>输入告警码可以解析出具体告警内容<br>V0001</p> 
 
 </div>
 
 <div class="container form-floating mb-3 mt-3">
 
-	<input type="text" class="form-control" id="ErrInput2" placeholder=" ">
+	<input type="text" class="form-control" id="ErrInput" placeholder=" ">
 
-	<label for="email">&ensp;&ensp;在此输入告警码2 - Modbus地址32769</label>
-
-</div>
-
-<div class="container form-floating mb-3 mt-3">
-
-	<input type="text" class="form-control" id="ErrInput3" placeholder=" ">
-
-	<label for="email">&ensp;&ensp;在此输入告警码3 - Modbus地址32770</label>
-
-</div>
-
-<div class="container form-floating mb-3 mt-3">
-
-	<input type="text" class="form-control" id="ErrInput4" placeholder=" ">
-
-	<label for="email">&ensp;&ensp;在此输入告警码4 - Modbus地址32771</label>
+	<label for="email">&ensp;&ensp;在此输入告警码 - Modbus地址45058</label>
 
 </div>
 
 <div class="container text-dark">
 
-	<p>请按照AFE或APF的告警信息输入，未输入告警码的部分默认为0</p>
+	<p>请按照单相PFC的告警信息输入，未输入告警码的部分默认为0</p>
 
 </div>
 
-<div class="d-flex justify-content-evenly">
+<div class="container-fluid p-3 text-white text-center">
 
+	<div class="row">
+
+		<div class="col-6 text-center">
 
 			<button class="btn btn-primary" onclick="ErrCodeConvert10()">
 
@@ -117,7 +98,9 @@
 
 			</button>
 
+		</div>
 
+    	<div class="col-6 text-center">
 
 			<button class="btn btn-primary" onclick="ErrCodeConvert16()">
 
@@ -125,22 +108,18 @@
 
 			</button>
 
+		</div>
 
-			<button class="btn btn-primary" onclick="window.location.href='/toolweb//APF_AlmAnalysis.html';">
-
-			我需要对导出日志的进行分析
-
-			</button>
-
+	</div>
 
 </div>
-<p>&ensp;</p>
+
 <p class="container" id="ErrInfo">告警信息：无</p>
 <p>&ensp;</p>
 <div class="container mt-3">
   <h1>告警信息解析列表</h1>
   <p>
-	AFE和APF的告警码是通过bit位来进行解析的，以下是每位的解析结果。<br>
+	告警码是通过bit位来进行解析的，以下是每位的解析结果。<br>
 	点击列表可以显示该告警排查建议。
   </p>
   <table class="table table-hover" if="ErrTable">
@@ -204,53 +183,43 @@
 
 <script>
 var ErrTextGroup = [
+"PFC直流过压",
+"PFC直流欠压",
+"PFC交流过压",
+"PFC交流欠压",
+"交流频率过高",
+"交流频率过低",
+"外部过流",
+"PFC过载",
 
-"电源逆相", "输入过压", "输入欠压", "相电压失效", "相电流差异过大", "相电流方向错误", "预留", "电流传感器逆相", 
-
-"电压传感器逆相", "电网电压不平衡", "电网电流不平衡", "相电感失效", "缺相", "电网频率过高", "电网频率过低", "硬过流",
-
-"软过流", "软件过载", "过温", "温感失效", "母线过压", "母线欠压", "与主机通信故障", "与从机通信故障", 
-
-"THDi异常", "THDv异常", "外部故障1", "外部故障2", "硬件过压", "预留", "预留", "预留"
-
+"PFC过温",
+"PFC通讯故障",
+"预留",
+"预留",
+"预留",
+"预留",
+"预留",
+"预留",
 ];
 
 var ErrInfoTextGroup=[
-"电源逆相，需要检查电源相序是否接反",
-"输入过压，需要检查输入电压是否超过设定点",
-"输入欠压，需要检查输入电压是否低于设定点",
-"相电压失效，外接电压传感器失效，请检查接线",
-"相电流差异过大，外接的电流互感器三相矢量和不为零，请检查接线",
-"相电流方向错误，检查外接的电流互感器方向和对应关系是否正确",
-"预留告警，可忽略",
-"电流传感器逆相，外接电流互感器与输入三相电压方向不同，请检查接线",
+"PFC直流过压，直流母线电压高于设置点",
+"PFC直流欠压，直流母线电压低于设置点",
+"PFC交流过压，电网电压过高",
+"PFC交流欠压，电网电压过低",
+"交流频率过高，电网频率过高",
+"交流频率过低，电网频率过低",
+"外部过流，IGBT触发硬件过流，检查是否过载使用，或硬件是否存在故障",
+"PFC过载，交流输入电流超过过载设置点",
 
-"电压传感器逆相，需要检查电源相序是否接反",
-"电网电压不平衡，需要检查电网侧电压是否正常",
-"电网电流不平衡，AFE模式下发生该故障可能是硬件损坏引起，APF模式下可能是负载侧三相负载不平衡导致",
-"相电感失效，电网侧可能发生了瞬时掉电，若电网侧正常则可能是硬件问题",
-"缺相，检查电网侧是否有缺相",
-"电网频率过高，检查电网侧频率是否过高",
-"电网频率过低，检查电网侧频率是否过低",
-"硬件过流，检查负载是否正常",
-
-"软件过流，检查负载或软过流参数是否正常",
-"软件过载，检查负载或过载参数是否正常",
-"过温，检查散热器是否脏堵，散热风扇是否正常运行",
-"温感失效，检查NTC温度探头接线",
-"母线过压，一般是由于输入电压高导致，也有可能是负载突然变小导致",
-"母线欠压，一般是由于输入电压高导致，也有可能是负载突然变大导致",
-"与主机通信故障，检查通信配置，检查通信接线是否正常",
-"与从机通信故障，检查通信配置，检查通信接线是否正常", 
-
-"THDi异常",
-"THDv异常",
-"外部故障1",
-"外部故障2",
-"硬件过压，一般是由于输入电压高导致，也有可能是负载突然变小导致",
-"预留告警，可忽略",
-"预留告警，可忽略",
-"预留告警，可忽略",
+"PFC过温，散热器温度过高",
+"PFC通讯故障，检查通讯是否正常",
+"预留告警，无意义",
+"预留告警，无意义",
+"预留告警，无意义",
+"预留告警，无意义",
+"预留告警，无意义",
+"预留告警，无意义",
 ];
 
 function ShowInfo(text)
@@ -262,7 +231,7 @@ document.getElementById("ErrInfoText").innerHTML = ErrInfoTextGroup[InfoIndex-1]
 function Tablefunction()
 {
 var CodeTable = document.getElementById("tbody1");
-for (var i=1;i<=32;i++)
+for (var i=1;i<=16;i++)
 { 
 	var tr = document.createElement("tr");
 	var td1 = document.createElement("td");
@@ -317,7 +286,7 @@ function GetErrInfoText(ErrCode10){
 var ErrText = "";
 var CodeSta = "0";
 var CodeTable = document.getElementById("tbody1");
-for (var i=1;i<=32;i++)
+for (var i=1;i<=16;i++)
 { 
 	var tr = document.getElementById("trid" + i.toString());
 	var td3 = document.getElementById("td3id" + i.toString());
@@ -341,15 +310,7 @@ return ErrText;
 
 function ErrCodeConvert10(){
 
-	var ErrCode1 = GetErrCode16(document.getElementById("ErrInput1").value);
-
-    var ErrCode2 = GetErrCode16(document.getElementById("ErrInput2").value);
-
-    var ErrCode3 = GetErrCode16(document.getElementById("ErrInput3").value);
-
-    var ErrCode4 = GetErrCode16(document.getElementById("ErrInput4").value);
-
-    var ErrCode = ErrCode4 + ErrCode3 + ErrCode2 + ErrCode1;
+    var ErrCode = GetErrCode16(document.getElementById("ErrInput").value);
 
     const num10 = Number("0x"+ErrCode);
 
@@ -359,15 +320,8 @@ function ErrCodeConvert10(){
 
 function ErrCodeConvert16(){
 
-	var ErrCode1 = "00000000" + (document.getElementById("ErrInput1").value);
-
-    var ErrCode2 = "00000000" + (document.getElementById("ErrInput2").value);
-
-    var ErrCode3 = "00000000" + (document.getElementById("ErrInput3").value);
-
-    var ErrCode4 = "00000000" + (document.getElementById("ErrInput4").value);
-
-    var ErrCode = ErrCode4.slice(-4) + ErrCode3.slice(-4) + ErrCode2.slice(-4) + ErrCode1.slice(-4);
+	var ErrCode1 = "00000000" + (document.getElementById("ErrInput").value);
+    var ErrCode = ErrCode1.slice(-4);
 
     const num10 = Number("0x"+ErrCode);
 
