@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <title>AFE和APF日志在线解析</title>
+
+  <meta charset="utf-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="bootstrap5/css/bootstrap.min.css" rel="stylesheet">
+
+  <script src="bootstrap5/js/bootstrap.bundle.min.js"></script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+  
+</head>
+
+<body class="bg-light" onload = "Tablefunction()">
+	
+	
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="https://huanghequn.gitee.io/toolweb">EnvicoolTools</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mynavbar">
+      <ul class="navbar-nav me-auto">
+		<li class="nav-item dropdown">
+		  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">告警码转换</a>
+		  <ul class="dropdown-menu">
+			<li><a class="dropdown-item" href="/toolweb//index.html">AFE和APF</a></li>
+            <li><a class="dropdown-item" href="/toolweb//PFC_AlmConv.html">单相PFC</a></li>
+			<li><a class="dropdown-item" href="/toolweb//VFD_AlmConv.html">自制变频器</a></li>
+			<li><a class="dropdown-item" href="#">冷凝风机控制板</a></li>
+		  </ul>
+		</li>
+		<li class="nav-item dropdown">
+		  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">通信协议</a>
+		  <ul class="dropdown-menu">
+			<li><a class="dropdown-item" href="/toolweb//index.html">AFE和APF</a></li>
+            <li><a class="dropdown-item" href="/toolweb//PFC_AlmConv.html">单相PFC</a></li>
+			<li><a class="dropdown-item" href="#">自制变频器</a></li>
+			<li><a class="dropdown-item" href="#">冷凝风机控制板</a></li>
+		  </ul>
+		</li>
+        <li class="nav-item">
+          <a class="nav-link" href="javascript:void(0)">关于</a>
+        </li>
+      </ul>
+      <form class="d-flex">
+        <input class="form-control me-2" type="text" placeholder="搜一搜">
+        <button class="btn btn-primary" type="button">GO</button>
+      </form>
+    </div>
+  </div>
+</nav>
+	
+
+<div class="container-fluid p-5 bg-dark text-white text-center">
+
+  <h1>AFE和APF日志在线解析</h1>
+
+  <p>V0001</p> 
+
+</div>	
+   
+
+
+<div class="container mt-3">
+  <h1>AFE和APF导出日志解析</h1>
+  <p>
+	可以手动打开文件，也可以将文件拖入选择框内。<br>
+  </p>
+
+<input type="file" id="fileInput" class="form-control" accept=".xlsx, .xls, .et">
+<p>&ensp;</p>
+<button class="btn btn-primary" onclick="DownloadExcel()">
+下载解析结果
+</button>
+
+
+<p>&ensp;</p>
+<h3>电子标签信息</h3>
+  <table id="LogTable1" class="table table-hover" if="ErrTable">
+    <thead>
+      <tr>
+        <th>序号</th>
+        <th>项目</th>
+        <th>内容</th>
+      </tr>
+    </thead>
+    <tbody id="tbody1">
+    </tbody>
+  </table>
+  
+<p>&ensp;</p>
+<h3>历史告警次数信息</h3>
+  <table id="LogTable2" class="table table-hover" if="ErrTable">
+    <thead>
+      <tr>
+        <th>序号</th>
+        <th>项目</th>
+        <th>内容</th>
+      </tr>
+    </thead>
+    <tbody id="tbody2">
+    </tbody>
+  </table>
+  
+<p>&ensp;</p>
+<h3>日志信息</h3>
+  <table id="LogTable3" class="table table-hover" if="ErrTable">
+    <thead>
+      <tr>
+        <th>告警序号</th>
+        <th>告警内容</th>
+        <th>电网侧电流平均值</th>
+        <th>电网侧电压平均值</th>
+        <th>电网侧频率</th>
+        <th>电网侧方向</th>
+        <th>整流侧电流平均值</th>
+        <th>整流侧电压平均值</th>
+        <th>整流侧参考电压</th>
+        <th>整流侧母线电压</th>
+        <th>整流侧状态</th>
+        <th>整流侧电流</th>
+        <th>温度</th>
+        <th>MCU运行时间</th>
+        <th>AFE运行时间</th>
+        <th>电流谐波</th>
+        <th>有功功率</th>
+        <th>无功功率</th>
+      </tr>
+    </thead>
+    <tbody id="tbody3">
+    </tbody>
+  </table>
+</div>
+
+
+
+<div class="container text-dark p-6">
+<p>&ensp;</p>
+<p>&ensp;</p>
+<p>&ensp;</p>
+</div>
+
+
+
+
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-bottom">
+
+  <div class="container text-center">
+
+    <p class="container text-white" id="InfoText">问题反馈邮箱：huanghq@envicool.com</p>
+
+  </div>
+
+</nav>
+
+<script>
+var tbody1TextGroup=[
+"单板本身控制(主芯片)软件编码大类",
+"单板本身控制(主芯片)软件编码",
+"单板本身控制(主芯片)软件版本",
+"单板本身控制(主芯片)BOOT软件编码大类",
+"单板本身控制(主芯片)BOOT软件编码",
+"单板本身控制(主芯片)BOOT软件版本",
+"单板本身驱动(从芯片1)软件编码大类",
+"单板本身驱动(从芯片1)软件编码",
+"单板本身驱动(从芯片1)软件版本",
+"单板本身驱动(从芯片1)BOOT软件编码大类",
+"单板本身驱动(从芯片1)BOOT软件编码",
+"单板本身驱动(从芯片1)BOOT软件版本",
+"单板本身预留(从芯片2)软件编码大类",
+"单板本身预留(从芯片2)软件编码",
+"单板本身预留(从芯片2)软件版本",
+"单板本身预留(从芯片2)BOOT软件编码大类",
+"单板本身预留(从芯片2)BOOT软件编码",
+"单板本身预留(从芯片2)BOOT软件版本",
+"单板本身预留(从芯片3)软件编码大类",
+];
+
+var tbody2TextGroup=[
+"电源逆相",
+"过压告警",
+"欠压告警",
+"电压传感器失效",
+"相电流差异过大",
+"电流互感器错误",
+"预留",
+"电流传感器逆相",
+"电压传感器逆相",
+"电网三相电压不平衡",
+"电网三相电流不平衡",
+"相电感失效",
+"缺相",
+"电网频率过高",
+"电网频率过低",
+"IGBT硬件过流",
+"IGBT软件过流",
+"IGBT软件过载",
+"过温",
+"温感失效",
+"直流母线过压",
+"直流母线欠压",
+"与主机通信故障",
+"与从机通信故障",
+"THDi异常",
+"THDv异常",
+"外部故障1",
+"外部故障2",
+"硬件过压",
+];
+
+var ErrTextGroup = [
+
+"电源逆相", "输入过压", "输入欠压", "相电压失效", "相电流差异过大", "相电流方向错误", "预留", "电流传感器逆相", 
+
+"电压传感器逆相", "电网电压不平衡", "电网电流不平衡", "相电感失效", "缺相", "电网频率过高", "电网频率过低", "硬过流",
+
+"软过流", "软件过载", "过温", "温感失效", "母线过压", "母线欠压", "与主机通信故障", "与从机通信故障", 
+
+"THDi异常", "THDv异常", "外部故障1", "外部故障2", "硬件过压", "预留", "预留", "预留"
+
+];
+
+	var workbook;
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+		var file = e.target.files[0];
+		if (!file) {
+			return;
+		}
+		handleFileSelect(e);
+    });
+
+
+
+	function handleFileSelect(e) {
+		var file = e.target.files[0];
+		var reader = new FileReader();
+		reader.onload = function(e) {
+			var data = new Uint8Array(e.target.result);
+			workbook = XLSX.read(data, { type: 'array' });
+			Table11_function();
+			Table12_function();
+			Table13_function();
+		};
+		reader.readAsArrayBuffer(file);
+	}
+	
+	
+	function Tablefunction()
+	{
+		var CodeTable = document.getElementById("tbody1");
+		for (var i=1;i<=17;i++)
+		{ 
+			var tr = document.createElement("tr");
+			var td1 = document.createElement("td");
+			var td2 = document.createElement("td");
+			var td3 = document.createElement("td");
+			tr.id = "trid" + i.toString();
+			tr.className = "table-secondary"
+			td1.innerHTML = i;
+			td2.innerHTML = tbody1TextGroup[i];
+			td3.innerHTML = "";
+			td1.id = "t1td1id" + i.toString();
+			td2.id = "t1td2id" + i.toString();
+			td3.id = "t1td3id" + i.toString();
+			
+			tr.setAttribute( "data-bs-toggle", "modal" );
+			tr.setAttribute( "data-bs-target", "#InfoModal" );
+			tr.appendChild(td1);
+			tr.appendChild(td2);
+			tr.appendChild(td3);
+			CodeTable.appendChild(tr);
+		}
+		
+		CodeTable = document.getElementById("tbody2");
+		for (var i=1;i<=28;i++)
+		{ 
+			var tr = document.createElement("tr");
+			var td1 = document.createElement("td");
+			var td2 = document.createElement("td");
+			var td3 = document.createElement("td");
+			tr.id = "trid" + i.toString();
+			tr.className = "table-secondary"
+			td1.innerHTML = i;
+			td2.innerHTML = tbody2TextGroup[i];
+			td3.innerHTML = "";
+			td1.id = "t2td1id" + i.toString();
+			td2.id = "t2td2id" + i.toString();
+			td3.id = "t2td3id" + i.toString();
+			
+			tr.setAttribute( "data-bs-toggle", "modal" );
+			tr.setAttribute( "data-bs-target", "#InfoModal" );
+			tr.appendChild(td1);
+			tr.appendChild(td2);
+			tr.appendChild(td3);
+			CodeTable.appendChild(tr);
+		}
+		
+		CodeTable = document.getElementById("tbody3");
+		for (var i=1;i<=64;i++)
+		{ 
+			var tr = document.createElement("tr");
+			var td1 = document.createElement("td");
+			var td2 = document.createElement("td");
+			var td3 = document.createElement("td");
+			var td4 = document.createElement("td");
+			var td5 = document.createElement("td");
+			var td6 = document.createElement("td");
+			var td7 = document.createElement("td");
+			var td8 = document.createElement("td");
+			var td9 = document.createElement("td");
+			var td10 = document.createElement("td");
+			var td11 = document.createElement("td");
+			var td12 = document.createElement("td");
+			var td13 = document.createElement("td");
+			var td14 = document.createElement("td");
+			var td15 = document.createElement("td");
+			var td16 = document.createElement("td");
+			var td17 = document.createElement("td");
+			var td18 = document.createElement("td");
+			tr.id = "trid" + i.toString();
+			tr.className = "table-secondary"
+			td1.innerHTML = i;
+			td2.innerHTML = "";
+			td3.innerHTML = "";
+			td4.innerHTML = "";
+			td5.innerHTML = "";			
+			td6.innerHTML = "";
+			td7.innerHTML = "";	
+			td8.innerHTML = "";				
+			td9.innerHTML = "";	
+			td10.innerHTML = "";	
+			td11.innerHTML = "";			
+			td12.innerHTML = "";	
+			td13.innerHTML = "";	
+			td14.innerHTML = "";
+			td15.innerHTML = "";			
+			td16.innerHTML = "";
+			td17.innerHTML = "";
+			td18.innerHTML = "";
+
+			td1.id = "t3td1id" + i.toString();
+			td2.id = "t3td2id" + i.toString();
+			td3.id = "t3td3id" + i.toString();
+			td4.id = "t3td4id" + i.toString();
+			td5.id = "t3td5id" + i.toString();
+			td6.id = "t3td6id" + i.toString();
+			td7.id = "t3td7id" + i.toString();
+			td8.id = "t3td8id" + i.toString();
+			td9.id = "t3td9id" + i.toString();
+			td10.id = "t3td10id" + i.toString();
+			td11.id = "t3td11id" + i.toString();
+			td12.id = "t3td12id" + i.toString();
+			td13.id = "t3td13id" + i.toString();
+			td14.id = "t3td14id" + i.toString();
+			td15.id = "t3td15id" + i.toString();
+			td16.id = "t3td16id" + i.toString();
+			td17.id = "t3td17id" + i.toString();
+			td18.id = "t3td18id" + i.toString();			
+			tr.setAttribute( "data-bs-toggle", "modal" );
+			tr.setAttribute( "data-bs-target", "#InfoModal" );
+			
+			tr.appendChild(td1);
+			tr.appendChild(td2);
+			tr.appendChild(td3);
+			tr.appendChild(td4);
+			tr.appendChild(td5);
+			tr.appendChild(td6);	
+			tr.appendChild(td7);
+			tr.appendChild(td8);
+			tr.appendChild(td9);
+			tr.appendChild(td10);
+			tr.appendChild(td11);
+			tr.appendChild(td12);
+			tr.appendChild(td13);
+			tr.appendChild(td14);
+			tr.appendChild(td15);
+			tr.appendChild(td16);	
+			tr.appendChild(td17);
+			tr.appendChild(td18);			
+			CodeTable.appendChild(tr);
+		}
+	};
+	
+	
+	
+	function Table11_function()
+	{
+		var CodeJson = XLSX.utils.sheet_to_json(workbook.Sheets['R电子标签'], { header: 1 });
+		for (var i=1;i<=17;i++)
+		{ 
+			document.getElementById("t1td3id" + i.toString()).innerHTML = CodeJson[81+i][2].toString(16);
+		}
+	};
+	
+	function Table12_function()
+	{
+		var CodeJson = XLSX.utils.sheet_to_json(workbook.Sheets['R历史告警次数'], { header: 1 });
+		for (var i=1;i<=28;i++)
+		{ 
+			document.getElementById("t2td3id" + i.toString()).innerHTML = CodeJson[2+i][2].toString();
+		}
+	};	
+	
+	function Table13_function()
+	{
+		var CodeJson = XLSX.utils.sheet_to_json(workbook.Sheets['R历史告警1~6'], { header: 1 });
+		for (var i=1;i<=6;i++)
+		{ 
+			document.getElementById("t3td2id" + i.toString()).innerHTML = ErrCodeConvert10(CodeJson[6+(i-1)*20][2],CodeJson[7+(i-1)*20][2],CodeJson[8+(i-1)*20][2],CodeJson[9+(i-1)*20][2]);
+			document.getElementById("t3td3id" + i.toString()).innerHTML = (Number(CodeJson[10+(i-1)*20][2]) / 100.00).toString();
+			document.getElementById("t3td4id" + i.toString()).innerHTML = (Number(CodeJson[11+(i-1)*20][2]) / 10.00).toString();
+			document.getElementById("t3td5id" + i.toString()).innerHTML = (Number(CodeJson[12+(i-1)*20][2]) / 100.00).toString();			
+			document.getElementById("t3td6id" + i.toString()).innerHTML = CodeJson[13+(i-1)*20][2].toString();
+			document.getElementById("t3td7id" + i.toString()).innerHTML = (Number(CodeJson[14+(i-1)*20][2]) / 100.00).toString();	
+			document.getElementById("t3td8id" + i.toString()).innerHTML = (Number(CodeJson[15+(i-1)*20][2]) / 10.00).toString();				
+			document.getElementById("t3td9id" + i.toString()).innerHTML = (Number(CodeJson[16+(i-1)*20][2]) / 10.00).toString();	
+			document.getElementById("t3td10id" + i.toString()).innerHTML = (Number(CodeJson[17+(i-1)*20][2]) / 10.00).toString();	
+			document.getElementById("t3td11id" + i.toString()).innerHTML = CodeJson[18+(i-1)*20][2].toString();			
+			document.getElementById("t3td12id" + i.toString()).innerHTML = (Number(CodeJson[19+(i-1)*20][2]) / 100.00).toString();	
+			document.getElementById("t3td13id" + i.toString()).innerHTML = (Number(CodeJson[20+(i-1)*20][2]) / 10.00).toString();	
+			document.getElementById("t3td14id" + i.toString()).innerHTML = CodeJson[21+(i-1)*20][2].toString();
+			document.getElementById("t3td15id" + i.toString()).innerHTML = CodeJson[22+(i-1)*20][2].toString();			
+			document.getElementById("t3td16id" + i.toString()).innerHTML = CodeJson[23+(i-1)*20][2].toString();
+			document.getElementById("t3td17id" + i.toString()).innerHTML = CodeJson[24+(i-1)*20][2].toString();
+			document.getElementById("t3td18id" + i.toString()).innerHTML = CodeJson[25+(i-1)*20][2].toString();
+		}
+		for (var i=1;i<=9;i++)
+		{ 
+			var j = 1+(i*6);
+			var str1 = "";
+			str1 = "R历史告警" + j.toString() + "~" + (Number(j)+5).toString();
+			Table13_function_2(str1,j);
+		}
+		CodeJson = XLSX.utils.sheet_to_json(workbook.Sheets['R历史告警61~64'], { header: 1 });
+		for (var i=61;i<=64;i++)
+		{ 
+			document.getElementById("t3td2id" + i.toString()).innerHTML = ErrCodeConvert10(CodeJson[2+(i-61)*20][2],CodeJson[3+(i-61)*20][2],CodeJson[4+(i-61)*20][2],CodeJson[5+(i-61)*20][2]);
+			document.getElementById("t3td3id" + i.toString()).innerHTML = (Number(CodeJson[6+(i-61)*20][2]) / 100.00).toString();
+			document.getElementById("t3td4id" + i.toString()).innerHTML = (Number(CodeJson[7+(i-61)*20][2]) / 10.00).toString();
+			document.getElementById("t3td5id" + i.toString()).innerHTML = (Number(CodeJson[8+(i-61)*20][2]) / 100.00).toString();			
+			document.getElementById("t3td6id" + i.toString()).innerHTML = CodeJson[9+(i-61)*20][2].toString();
+			document.getElementById("t3td7id" + i.toString()).innerHTML = (Number(CodeJson[10+(i-61)*20][2]) / 100.00).toString();	
+			document.getElementById("t3td8id" + i.toString()).innerHTML = (Number(CodeJson[11+(i-61)*20][2]) / 10.00).toString();				
+			document.getElementById("t3td9id" + i.toString()).innerHTML = (Number(CodeJson[12+(i-61)*20][2]) / 10.00).toString();	
+			document.getElementById("t3td10id" + i.toString()).innerHTML = (Number(CodeJson[13+(i-61)*20][2]) / 10.00).toString();	
+			document.getElementById("t3td11id" + i.toString()).innerHTML = CodeJson[14+(i-61)*20][2].toString();			
+			document.getElementById("t3td12id" + i.toString()).innerHTML = (Number(CodeJson[15+(i-61)*20][2]) / 100.00).toString();	
+			document.getElementById("t3td13id" + i.toString()).innerHTML = (Number(CodeJson[16+(i-61)*20][2]) / 10.00).toString();	
+			document.getElementById("t3td14id" + i.toString()).innerHTML = CodeJson[17+(i-61)*20][2].toString();
+			document.getElementById("t3td15id" + i.toString()).innerHTML = CodeJson[18+(i-61)*20][2].toString();			
+			document.getElementById("t3td16id" + i.toString()).innerHTML = CodeJson[19+(i-61)*20][2].toString();
+			document.getElementById("t3td17id" + i.toString()).innerHTML = CodeJson[20+(i-61)*20][2].toString();
+			document.getElementById("t3td18id" + i.toString()).innerHTML = CodeJson[21+(i-61)*20][2].toString();
+		}
+	};
+	
+	function Table13_function_2(str1,e)
+	{
+		var CodeJson = XLSX.utils.sheet_to_json(workbook.Sheets[str1], { header: 1 });
+		for (var i=Number(e);i<=(Number(e)+5);i++)
+		{ 
+			document.getElementById("t3td2id" + i.toString()).innerHTML = ErrCodeConvert10(CodeJson[2+(i-Number(e))*20][2],CodeJson[3+(i-Number(e))*20][2],CodeJson[4+(i-Number(e))*20][2],CodeJson[5+(i-Number(e))*20][2]);
+			document.getElementById("t3td3id" + i.toString()).innerHTML = (Number(CodeJson[6+(i-Number(e))*20][2]) / 100.00).toString();
+			document.getElementById("t3td4id" + i.toString()).innerHTML = (Number(CodeJson[7+(i-Number(e))*20][2]) / 10.00).toString();
+			document.getElementById("t3td5id" + i.toString()).innerHTML = (Number(CodeJson[8+(i-Number(e))*20][2]) / 100.00).toString();			
+			document.getElementById("t3td6id" + i.toString()).innerHTML = CodeJson[9+(i-Number(e))*20][2].toString();
+			document.getElementById("t3td7id" + i.toString()).innerHTML = (Number(CodeJson[10+(i-Number(e))*20][2]) / 100.00).toString();	
+			document.getElementById("t3td8id" + i.toString()).innerHTML = (Number(CodeJson[11+(i-Number(e))*20][2]) / 10.00).toString();				
+			document.getElementById("t3td9id" + i.toString()).innerHTML = (Number(CodeJson[12+(i-Number(e))*20][2]) / 10.00).toString();	
+			document.getElementById("t3td10id" + i.toString()).innerHTML = (Number(CodeJson[13+(i-Number(e))*20][2]) / 10.00).toString();	
+			document.getElementById("t3td11id" + i.toString()).innerHTML = CodeJson[14+(i-Number(e))*20][2].toString();			
+			document.getElementById("t3td12id" + i.toString()).innerHTML = (Number(CodeJson[15+(i-Number(e))*20][2]) / 100.00).toString();	
+			document.getElementById("t3td13id" + i.toString()).innerHTML = (Number(CodeJson[16+(i-Number(e))*20][2]) / 10.00).toString();	
+			document.getElementById("t3td14id" + i.toString()).innerHTML = CodeJson[17+(i-Number(e))*20][2].toString();
+			document.getElementById("t3td15id" + i.toString()).innerHTML = CodeJson[18+(i-Number(e))*20][2].toString();			
+			document.getElementById("t3td16id" + i.toString()).innerHTML = CodeJson[19+(i-Number(e))*20][2].toString();
+			document.getElementById("t3td17id" + i.toString()).innerHTML = CodeJson[20+(i-Number(e))*20][2].toString();
+			document.getElementById("t3td18id" + i.toString()).innerHTML = CodeJson[21+(i-Number(e))*20][2].toString();
+		}
+	}
+	
+	
+	
+	
+
+	function GetErrCode(ErrCode10,bit)
+	{
+		const num = parseInt(ErrCode10);
+		ErrCode = num.toString(2);
+		ErrCode = "00000000000000000000000000000000"+ErrCode+"0";
+		const pos = parseInt(bit)*-1;
+		var ErrCodeRight = ErrCode.slice(pos-1,pos);
+		return ErrCodeRight;
+	} 
+	
+
+	function GetErrCode16(code)
+	{
+		var CodeNum = Number(code);
+		var CodeText = "00000000" + CodeNum.toString(16);
+		return CodeText.slice(-4);
+	}
+		
+		
+		
+	
+		
+	function ErrCodeConvert10(err1,err2,err3,err4)
+	{
+		var ErrCode1 = GetErrCode16(err1);
+		var ErrCode2 = GetErrCode16(err2);
+		var ErrCode3 = GetErrCode16(err3);
+		var ErrCode4 = GetErrCode16(err4);
+		var ErrCode = ErrCode4 + ErrCode3 + ErrCode2 + ErrCode1;
+		const num10 = Number("0x"+ErrCode);
+		return GetErrInfoText(num10);
+	}
+	
+	
+	
+	function GetErrInfoText(ErrCode10)
+	{
+		var ErrText = "";
+		var CodeSta = "0";
+		for (var i=1;i<=32;i++)
+		{ 
+			CodeSta = GetErrCode(ErrCode10,i)
+			if(CodeSta == "1")
+			{
+				ErrText = ErrText + ErrTextGroup[i-1] + ' ' + '\t' + '\n';
+			}
+		}
+		return ErrText;
+	}
+		
+	
+	function DownloadExcel()
+	{
+		var wb = XLSX.utils.book_new(); // 创建一个新的工作簿 
+		var ws = XLSX.utils.table_to_sheet(document.getElementById('LogTable1')); // 将表格转换为工作表
+		XLSX.utils.book_append_sheet(wb, ws, "电子标签信息"); // 将工作表添加到工作簿中  		
+		var ws = XLSX.utils.table_to_sheet(document.getElementById('LogTable2')); // 将表格转换为工作表
+		XLSX.utils.book_append_sheet(wb, ws, "历史告警次数信息"); // 将工作表添加到工作簿中  	
+		var ws = XLSX.utils.table_to_sheet(document.getElementById('LogTable3')); // 将表格转换为工作表
+		XLSX.utils.book_append_sheet(wb, ws, "日志信息"); // 将工作表添加到工作簿中  			
+
+		XLSX.writeFile(wb, "export.xlsx");  
+	}
+</script>
+
+</body>
+
+</html>
