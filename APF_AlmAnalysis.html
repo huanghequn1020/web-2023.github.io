@@ -164,6 +164,7 @@
 
 <script>
 var tbody1TextGroup=[
+" ",
 "单板本身控制(主芯片)软件编码大类",
 "单板本身控制(主芯片)软件编码",
 "单板本身控制(主芯片)软件版本",
@@ -183,9 +184,11 @@ var tbody1TextGroup=[
 "单板本身预留(从芯片2)BOOT软件编码",
 "单板本身预留(从芯片2)BOOT软件版本",
 "单板本身预留(从芯片3)软件编码大类",
+" ",
 ];
 
 var tbody2TextGroup=[
+" ",
 "电源逆相",
 "过压告警",
 "欠压告警",
@@ -215,6 +218,7 @@ var tbody2TextGroup=[
 "外部故障1",
 "外部故障2",
 "硬件过压",
+" ",
 ];
 
 var ErrTextGroup = [
@@ -257,7 +261,7 @@ var ErrTextGroup = [
 	function Tablefunction()
 	{
 		var CodeTable = document.getElementById("tbody1");
-		for (var i=1;i<=17;i++)
+		for (var i=1;i<=18;i++)
 		{ 
 			var tr = document.createElement("tr");
 			var td1 = document.createElement("td");
@@ -281,7 +285,7 @@ var ErrTextGroup = [
 		}
 		
 		CodeTable = document.getElementById("tbody2");
-		for (var i=1;i<=28;i++)
+		for (var i=1;i<=29;i++)
 		{ 
 			var tr = document.createElement("tr");
 			var td1 = document.createElement("td");
@@ -395,7 +399,7 @@ var ErrTextGroup = [
 	function Table11_function()
 	{
 		var CodeJson = XLSX.utils.sheet_to_json(workbook.Sheets['R电子标签'], { header: 1 });
-		for (var i=1;i<=17;i++)
+		for (var i=1;i<=18;i++)
 		{ 
 			document.getElementById("t1td3id" + i.toString()).innerHTML = CodeJson[81+i][2].toString(16);
 		}
@@ -404,9 +408,9 @@ var ErrTextGroup = [
 	function Table12_function()
 	{
 		var CodeJson = XLSX.utils.sheet_to_json(workbook.Sheets['R历史告警次数'], { header: 1 });
-		for (var i=1;i<=28;i++)
+		for (var i=1;i<=29;i++)
 		{ 
-			document.getElementById("t2td3id" + i.toString()).innerHTML = CodeJson[2+i][2].toString();
+			document.getElementById("t2td3id" + i.toString()).innerHTML = CodeJson[1+i][2].toString();
 		}
 	};	
 	
