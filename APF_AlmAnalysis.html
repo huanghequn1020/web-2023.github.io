@@ -78,10 +78,14 @@
 
 <input type="file" id="fileInput" class="form-control" accept=".xlsx, .xls, .et">
 <p>&ensp;</p>
-<button class="btn btn-primary" onclick="DownloadExcel()">
+
+<button class="btn btn-primary m-2" onclick="DownloadExcel()">
 下载解析结果
 </button>
 
+<button class="btn btn btn-dark m-2" onclick="DownloadTools()">
+下载解析小工具（方便沙盒下分析）
+</button>
 
 <p>&ensp;</p>
 <h3>电子标签信息</h3>
@@ -558,6 +562,23 @@ var ErrTextGroup = [
 		XLSX.utils.book_append_sheet(wb, ws, "日志信息"); // 将工作表添加到工作簿中  			
 
 		XLSX.writeFile(wb, "export.xlsx");  
+	}
+	
+	function DownloadTools()
+	{
+        // 文件的URL（这里是一个示例PDF文件的URL）  
+        const fileUrl = '/web-2023.github.io//APF日志分析工具.zip';  
+        // 创建一个临时的a标签  
+        const a = document.createElement('a');  
+        a.href = fileUrl;  
+        // 指定下载文件的名称（如果服务器支持，否则可能无效）  
+        a.download = 'APF日志分析工具.zip';  
+        // 添加到body中（这一步对于触发下载是必需的）  
+        document.body.appendChild(a);  
+        // 模拟点击  
+        a.click();  
+        // 从DOM中移除（可选，因为一旦下载开始，a标签就不再需要了）  
+        document.body.removeChild(a);  
 	}
 </script>
 
