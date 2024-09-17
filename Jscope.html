@@ -12,11 +12,16 @@
             align-items: center;
             user-select: none;
             background: #f0f0f0;
+			touch-action: manipulation; /* 添加此行以优化触控操作 */
         }
         canvas {
+			position: absolute; /* 绝对定位到页面左上角 */
+			top: 0px; /* 设置顶部距离 */
+			left: 0px; /* 设置左侧距离 */
             border: 10px solid Gainsboro;
             background: white;
             cursor: pointer;
+			z-index: -1; /* 使canvas处于最底层 */
         }
         .controls {
 			position: absolute; /* 绝对定位到页面左上角 */
@@ -157,7 +162,6 @@
 		const DisplayDivX = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000];//16
         const DisplayDivY = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000];//22
 		const DisplayDivText = ['1/div','2/div','5/div','10/div','20/div','50/div','100/div','200/div','500/div','1k/div','2k/div','5k/div','10k/div','20k/div','50k/div','100k/div','200k/div','500k/div','1M/div','2M/div','5M/div','10M/div','20M/div','50M/div','100M/div','200M/div','500M/div','1G/div']
-		const ChannelText = ['U相电流','Iq电流','Id电流','IqRef','母线电压','Vq电压','角速度','机械角'];
 		let DisplayDivXIndex = 6;
 		let DisplayDivYIndex = [12,12,12,12,12,12,12,12];
         let waveformData = [[], [], [], [], [], [], [], []]; // 8个通道的波形数据
@@ -204,8 +208,7 @@
 			
 			// 添加通道名称
             const channelCell = document.createElement('td');
-            //channelCell.textContent = `通道 ${index + 1}`;
-			channelCell.textContent = ChannelText[index];
+            channelCell.textContent = `通道 ${index + 1}`;
             row.appendChild(channelCell);
 /*
             // 添加输入框以设置纵轴比例
@@ -346,8 +349,16 @@
 							DisplayDataAvg += (DataMax+DataMin)/2;
 							const x = (DataIndex - xOffset) / DrawScaleX; // 应用xOffset和xScale
 							ctx.beginPath();
-							ctx.lineTo(x + midX, midY - (DataMin / DrawScaleY));
-							ctx.lineTo(x + midX, midY - (DataMax / DrawScaleY));
+							if(DataMin != DataMax)
+							{
+								ctx.lineTo(x + midX, midY - (DataMin / DrawScaleY));
+								ctx.lineTo(x + midX, midY - (DataMax / DrawScaleY));
+							}
+							else
+							{
+								ctx.lineTo(x + midX, midY - (DataMin / DrawScaleY));
+								ctx.lineTo(x + midX + 1, midY - (DataMax / DrawScaleY));
+							}
 							ctx.stroke();
 						}
 						items[channel].children[4].textContent = waveformData[channel][Math.max(Math.round((DataIndexMin+DataIndexMax)/2)-1,0)];
@@ -576,6 +587,27 @@
             canvas.addEventListener('mouseup', onMouseUp);
         });
 
+		// Touch支持
+		canvas.addEventListener('touchstart', (e) => {
+			const touch = e.touches[0];
+			let startX = touch.clientX;
+
+			const onTouchMove = (e) => {
+				const touch = e.touches[0];
+				xOffset += (startX - touch.clientX) * (DisplayDivX[DisplayDivXIndex] / gridSpacingX);
+				startX = touch.clientX;
+				drawWaveform();
+			};
+
+			const onTouchEnd = () => {
+				canvas.removeEventListener('touchmove', onTouchMove);
+				canvas.removeEventListener('touchend', onTouchEnd);
+			};
+
+			canvas.addEventListener('touchmove', onTouchMove);
+			canvas.addEventListener('touchend', onTouchEnd);
+		});
+
 		/*悬浮框位置限制*/
 		function floatingPanelSize() {
 			// 获取窗口的宽度和高度
@@ -679,6 +711,34 @@
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp);
         });
+		
+		// Touch支持
+		floatingPanel.addEventListener('touchstart', (e) => {
+			e.preventDefault(); // 阻止默认行为
+			let touch = e.touches[0]; // 取第一个触摸点
+			let offsetX = touch.clientX - floatingPanel.getBoundingClientRect().left;
+			let offsetY = touch.clientY - floatingPanel.getBoundingClientRect().top;
+
+			const onTouchMove = (e) => {
+				touch = e.touches[0];
+				let newLeft = touch.clientX - offsetX;
+				let newTop = touch.clientY - offsetY;
+
+				newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - floatingPanel.offsetWidth));
+				newTop = Math.max(0, Math.min(newTop, window.innerHeight - floatingPanel.offsetHeight));
+
+				floatingPanel.style.left = newLeft + 'px';
+				floatingPanel.style.top = newTop + 'px';
+			};
+
+			const onTouchEnd = () => {
+				document.removeEventListener('touchmove', onTouchMove);
+				document.removeEventListener('touchend', onTouchEnd);
+			};
+
+			document.addEventListener('touchmove', onTouchMove);
+			document.addEventListener('touchend', onTouchEnd);
+		});
 
 		/*纵坐标调节方框位置限制*/
 		function offsetArrowSize() {
@@ -773,8 +833,8 @@
         });
 		
         function adjustCanvasSize() {
-            canvas.width = window.innerWidth - 20;
-            canvas.height = window.innerHeight - 20;
+            canvas.width = Math.max(window.innerWidth,floatingPanel.getBoundingClientRect().width) - 20;
+            canvas.height = Math.max(window.innerHeight,600) - 20;
 			floatingPanelSize();
 			offsetArrowSize();
             drawWaveform();
@@ -784,10 +844,8 @@
             adjustCanvasSize(); // 每次调用绘制函数
         }, 1000); // 每1000毫秒进行一次更新
 		
-		// 设置悬浮框在右下角
 		floatingPanel.style.left = (window.innerWidth - floatingPanel.getBoundingClientRect().width) + 'px';
-		floatingPanel.style.top = (window.innerHeight - floatingPanel.getBoundingClientRect().height) + 'px';	
-		
+		floatingPanel.style.top = (window.innerHeight - floatingPanel.getBoundingClientRect().height) + 'px';
         window.addEventListener('resize', adjustCanvasSize);
         adjustCanvasSize();
 		xScaleDisplay.textContent = DisplayDivText[DisplayDivXIndex]; // 更新显示的横轴比例
