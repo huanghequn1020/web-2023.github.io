@@ -1,0 +1,412 @@
+
+
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <title>APF补偿电流计算工具</title>
+
+  <meta charset="utf-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</head>
+
+<body class="bg-light" onload = "Calculate()">
+	
+	
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="https://huanghequn.gitee.io/toolweb">EnvicoolTools</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mynavbar">
+      <ul class="navbar-nav me-auto">
+		<li class="nav-item dropdown">
+		  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">告警码转换</a>
+		  <ul class="dropdown-menu">
+			<li><a class="dropdown-item" href="/web-2023.github.io//index.html">AFE和APF</a></li>
+			<li><a class="dropdown-item" href="/web-2023.github.io//PFC_AlmConv.html">单相PFC</a></li>
+			<li><a class="dropdown-item" href="/web-2023.github.io//VFD_AlmConv.html">自制变频器</a></li>
+			<li><a class="dropdown-item" href="#">冷凝风机控制板</a></li>
+		  </ul>
+		</li>
+		<li class="nav-item dropdown">
+		  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">通信协议</a>
+		  <ul class="dropdown-menu">
+			<li><a class="dropdown-item" href="/web-2023.github.io//index.html">AFE和APF</a></li>
+			<li><a class="dropdown-item" href="/web-2023.github.io//PFC_AlmConv.html">单相PFC</a></li>
+			<li><a class="dropdown-item" href="#">自制变频器</a></li>
+			<li><a class="dropdown-item" href="#">冷凝风机控制板</a></li>
+		  </ul>
+		</li>
+		<li class="nav-item dropdown">
+		  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">实用小工具</a>
+		  <ul class="dropdown-menu">
+			<li><a class="dropdown-item" href="/web-2023.github.io//APF_AlmAnalysis.html">AFE和APF日志解析工具</a></li>
+			<li><a class="dropdown-item" href="/web-2023.github.io//APF_CurrCalc.html">APF补偿电流计算工具</a></li>
+			<li><a class="dropdown-item" href="/web-2023.github.io//Jscope.html">Jscope波形查看器</a></li>
+		  </ul>
+		</li>
+        <li class="nav-item">
+          <a class="nav-link" href="javascript:void(0)">关于</a>
+        </li>
+      </ul>
+      <form class="d-flex">
+        <input class="form-control me-2" type="text" placeholder="搜一搜">
+        <button class="btn btn-primary" type="button">GO</button>
+      </form>
+    </div>
+  </div>
+</nav>
+	
+
+<div class="container-fluid p-5 bg-dark text-white text-center">
+
+	<h1>APF补偿电流计算工具</h1>
+	<p>本工具计算模型是根据测试数据拟合得到的，仅供参考。<br>V0001</p> 
+
+</div>
+
+
+
+    <div class="container"> 
+		<p>&ensp;</p>
+        <!-- 三相电源设置 --> 
+        <h2>三相电源设置</h2> 
+		<div class="row row-cols-lg-auto g-3 align-items-center">
+			<div class="col">
+				<label for="voltage" class="form-check-label">三相电源电压 (V):</label> 
+			</div>
+			<div class="col">
+				<input type="number" id="voltage" class="form-control" value="380" aria-label="First name"> 
+			</div>
+			<!--
+			<label for="inductive_reactance">电源侧三相电感 (mH):</label> 
+			<input type="number" id="inductive_reactance" value="0.2"> 
+			--> 
+			<div class="col">
+				<button onclick="addLoad()" class="btn btn-primary m-2">添加负载</button> 
+				<button onclick="cleanLoad()" class="btn btn-primary m-2">清除列表</button>
+			</div>
+		</div>
+		<p>&ensp;</p>
+        <!-- 负载列表 --> 
+		<h2>负载列表</h2> 
+        <table id="load_table" class="table table-hover"> 
+            <thead> 
+                <tr> 
+					<th>序号</th>
+                    <th>负载类型</th> 
+                    <th>有功功率 (kW)</th> 
+                    <th>电抗感量 (mH)</th> 
+					<th>负载电流 (A)</th>
+					<th>谐波电流 (A)</th>
+					<th>电流谐波 (%)</th>
+					<th>无功电流 (A)</th>
+					<th>功率因数 (PF)</th>
+                    <th>操作</th> 
+                </tr> 
+            </thead> 
+        </table> 
+		<p>&ensp;</p>
+        <!-- 结果显示 -->
+		<h2>电网数据</h2> 
+        <table id="load_results_table" class="table table-hover"> 
+            <thead> 
+                <tr> 
+					<th>负载数量</th>
+                    <th>有功功率</th> 
+                    <th>电网电流</th> 
+                    <th>谐波电流</th> 
+					<th>THDi</th>
+					<th>无功电流</th>
+					<th>功率因数</th>
+					<th>APF治理电流</th>
+                </tr> 
+                <tr> 
+					<td>负载数量</td>
+                    <td>有功功率</td> 
+                    <td>电网电流</td> 
+                    <td>谐波电流</td> 
+					<td>THDi</td>
+					<td>无功电流</td>
+					<td>功率因数</td>
+					<td>APF治理电流</td>
+                </tr> 
+            </thead> 
+        </table> 
+		<div id="load_results"></div>
+
+    </div> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="container text-dark p-6">
+<p>&ensp;</p>
+<p>&ensp;</p>
+<p>&ensp;</p>
+</div>
+
+
+<!-- 模态框 -->
+<div class="modal fade" id="InfoModal">
+<p>&ensp;</p>
+<p>&ensp;</p>
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <!-- 模态框头部 -->
+      <div class="modal-header">
+        <h4 class="modal-title">告警说明</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- 模态框内容 -->
+      <div class="modal-body">
+		<p id="ErrInfoText"></p>
+      </div>
+
+      <!-- 模态框底部 -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">关闭</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-bottom">
+
+  <div class="container text-center">
+
+    <p class="container text-white" id="InfoText">问题反馈邮箱：huanghq@envicool.com</p>
+
+  </div>
+
+</nav>
+
+<script>
+        let loadCounter = 0; 
+        const loadTable = document.getElementById('load_table');  
+        const loadResults = document.getElementById('load_results');  
+		const loadResultsTable = document.getElementById('load_results_table'); 
+ 
+		let intervalID = setInterval(function() {
+			Calculate();
+		}, 200);
+		//clearInterval(intervalID);
+		
+        function addLoad() { 
+            const newRow = loadTable.insertRow(-1);  
+			const cell0 = newRow.insertCell(0);
+            const cell1 = newRow.insertCell(1);  
+            const cell2 = newRow.insertCell(2);  
+            const cell3 = newRow.insertCell(3);  
+            const cell4 = newRow.insertCell(4);  
+            const cell5 = newRow.insertCell(5);  
+			const cell6 = newRow.insertCell(6); 
+			const cell7 = newRow.insertCell(7); 
+			const cell8 = newRow.insertCell(8);
+			const cell9 = newRow.insertCell(9);
+			
+			cell0.textContent	= loadTable.rows.length - 1;
+            cell1.innerHTML		= `<select class="form-select" style="width: 100%; max-width: 200px;"><option>电解变频器(直流电抗)</option><option>电解变频器(交流电抗)</option><option>薄膜变频器(直流电抗)</option><option>薄膜变频器(交流电抗)</option><option>EC风机(交流电抗)</option></select>`; 
+            cell2.innerHTML		= `<input type="number" class="form-control" style="max-width: 120px;" value="5.5">`; 
+            cell3.innerHTML		= `<input type="number" class="form-control" style="max-width: 120px;" value="1.0">`; 
+			cell4.textContent	= '0';	//负载电流
+			cell5.textContent	= '0';	//谐波电流
+			cell6.textContent	= '0'	//电流谐波
+			cell7.textContent	= '0';	//无功电流
+			cell8.textContent	= '0';	//功率因数
+            cell9.innerHTML	= `<button onclick="removeLoad(this)" class="btn btn btn-dark btn-sm">删除</button>`; 
+ 
+            loadCounter++; 
+        } 
+
+        function cleanLoad() {  
+			const rows_length = loadTable.rows.length;
+			for (let i = 1; i < rows_length;  i++) { 
+				//alert("表格的行数为：" + );
+				loadTable.deleteRow(-1);
+			}
+        } 
+
+
+        function removeLoad(button) { 
+            const row = button.parentNode.parentNode;  
+			const rows_length = loadTable.rows.length;
+            loadTable.deleteRow(row.rowIndex);
+			for (let i = 1; i < rows_length;  i++) { 
+				loadTable.rows[i].cells[0].textContent = i;
+			}
+        } 
+ 
+ 
+ 
+		function LoadListUpdate() {
+			let SourceVoltage = parseFloat(document.getElementById('voltage').value);//电网电压
+			//let SourceL = parseFloat(document.getElementById('inductive_reactance').value);//电网电感
+			let LoadPower = 0;//负载功率
+			let Load_L = 0;//电抗大小
+			let LoadCurrent = 0;//负载电流
+			let LoadCurrentP = 0;//有功电流
+			let LoadCurrentQ = 0;//无功电流
+			let LoadCurrentH = 0;//谐波电流
+			const rows_length = loadTable.rows.length;
+			
+			for (let i = 1; i < rows_length;  i++) {
+				LoadPower = parseFloat(loadTable.rows[i].cells[2].querySelector("input").value) * 1000;//负载功率
+				Load_L = parseFloat(loadTable.rows[i].cells[3].querySelector("input").value);//电抗大小
+				if(Load_L < 0.5){//防止分母为0
+					Load_L = 0.5;
+					loadTable.rows[i].cells[3].querySelector("input").value = Load_L;
+				}
+				LoadCurrentP = (LoadPower * 0.57735) / SourceVoltage;//计算有功电流
+				switch(loadTable.rows[i].cells[1].querySelector("select").selectedIndex) {
+					case 0://电解变频器(直流电抗)
+						if(Load_L > 2){
+							LoadCurrentQ = (0.00008 * LoadPower) * (1+(1/Load_L));
+						}
+						else{
+							LoadCurrentQ = ((0.00025 * LoadPower) / Load_L);
+						}
+						LoadCurrentQ = LoadCurrentQ * 380 / SourceVoltage;
+						LoadCurrent = LoadCurrentQ + LoadCurrentP;
+						LoadCurrentH= (0.000447 * LoadPower) * (1 +(0.5/(Load_L**1.5)));
+						LoadCurrentH = LoadCurrentH * 380 / SourceVoltage;
+						loadTable.rows[i].cells[4].textContent = LoadCurrent.toFixed(2);
+						loadTable.rows[i].cells[5].textContent = LoadCurrentH.toFixed(2);
+						loadTable.rows[i].cells[6].textContent = (LoadCurrentH * 100/LoadCurrent).toFixed(2);
+						loadTable.rows[i].cells[7].textContent = (LoadCurrent - LoadCurrentP).toFixed(2);
+						loadTable.rows[i].cells[8].textContent = (LoadCurrentP / LoadCurrent).toFixed(2);
+						break;
+					case 1://电解变频器(交流流电抗)
+						LoadCurrentQ = ((0.02/Load_L)+0.0015*Load_L)*(LoadPower ** 0.5);
+						LoadCurrentQ = LoadCurrentQ * 380 / SourceVoltage;
+						LoadCurrent = LoadCurrentQ + LoadCurrentP;
+						LoadCurrentH= (0.0055 * (LoadPower ** 0.785) * (Load_L ** -0.7));
+						LoadCurrentH = LoadCurrentH * 380 / SourceVoltage;
+						loadTable.rows[i].cells[4].textContent = LoadCurrent.toFixed(2);
+						loadTable.rows[i].cells[5].textContent = LoadCurrentH.toFixed(2);
+						loadTable.rows[i].cells[6].textContent = (LoadCurrentH * 100/LoadCurrent).toFixed(2);
+						loadTable.rows[i].cells[7].textContent = (LoadCurrent - LoadCurrentP).toFixed(2);
+						loadTable.rows[i].cells[8].textContent = (LoadCurrentP / LoadCurrent).toFixed(2);
+						break;
+					case 2://薄膜变频器(直流电抗)
+
+						break;
+					case 3://薄膜变频器(交流流电抗)
+
+						break;
+					case 4://EC风机(交流流电抗)
+	
+						break;
+					default:
+				}
+				
+			}
+		}
+ 
+		function Calculate() {
+			let LoadNum = loadTable.rows.length - 1;//负载数量
+			let LoadPowerTotal = 0;//电网功率
+			let LoadCurrent = 0;//电网电流
+			let LoadCurrentH = 0;//电网谐波电流
+			let LoadCurrentQ = 0;//电网无功电流
+			let LoadCurrentTHD = 0;//电网总谐波畸变
+			let LoadPF = 0;//电网功率因数
+			let ApfCurrent = 0;//APF电流
+			const rows_length = loadTable.rows.length;
+			
+			LoadListUpdate();
+			
+			for (let i = 1; i < rows_length;  i++) {
+				LoadPowerTotal = LoadPowerTotal + parseFloat(loadTable.rows[i].cells[2].querySelector("input").value);//电网功率
+				LoadCurrent = LoadCurrent + parseFloat(loadTable.rows[i].cells[4].textContent);//负载电流
+				LoadCurrentH = LoadCurrentH + parseFloat(loadTable.rows[i].cells[5].textContent);//谐波电流
+				LoadCurrentQ = LoadCurrentQ + parseFloat(loadTable.rows[i].cells[7].textContent);//负载无功电流
+			}
+			if(rows_length > 1)//防止计算时分母为零
+			{
+				LoadCurrentTHD = (LoadCurrentH / LoadCurrent) * 100;//电网总谐波畸变
+				LoadPF = (1-(LoadCurrentQ/LoadCurrent))*100;//电网功率因数
+				ApfCurrent = LoadCurrentH*LoadCurrentH + LoadCurrentQ*LoadCurrentQ;
+				ApfCurrent = ApfCurrent ** 0.5;
+			}
+			//console.log(loadTable.rows[1].cells[2].querySelector("input").value);
+			//console.log(loadTable.rows[1].cells[5].textContent);
+			//console.log(loadTable.rows[1].cells[1].querySelector("select").selectedIndex);
+			/**
+			loadResults.innerHTML  = `
+				<p>负载数量: ${LoadNum}个</p>
+				<p>电网功率: ${LoadPowerTotal.toFixed(2)}kW</p>
+				<p>电网电流: ${LoadCurrent.toFixed(2)}A</p>
+				<p>电网谐波电流: ${LoadCurrentH.toFixed(2)}A</p>
+				<p>电网THDi: ${LoadCurrentTHD.toFixed(2)}%</p>
+				<p>电网无功电流: ${LoadCurrentQ.toFixed(2)}A</p>
+				<p>电网功率因数: ${LoadPF.toFixed(2)}</p>
+				<p>谐波治理需求电流: ${ApfCurrent.toFixed(2)}A</p>					
+				`;
+			**/
+			loadResultsTable.innerHTML = `
+				<thead> 
+					<tr> 
+						<th>负载数量</th>
+						<th>有功功率</th> 
+						<th>电网电流</th> 
+						<th>谐波电流</th> 
+						<th>THDi</th>
+						<th>无功电流</th>
+						<th>功率因数</th>
+						<th>APF治理电流</th>
+					</tr> 
+					<tr> 
+						<td>${LoadNum}</td>
+						<td>${LoadPowerTotal.toFixed(2)}kW</td> 
+						<td>${LoadCurrent.toFixed(2)}A</td> 
+						<td>${LoadCurrentH.toFixed(2)}A</td> 
+						<td>${LoadCurrentTHD.toFixed(2)}%</td>
+						<td>${LoadCurrentQ.toFixed(2)}A</td>
+						<td>${LoadPF.toFixed(2)}</td>
+						<td>${ApfCurrent.toFixed(2)}A</td>
+					</tr> 
+				</thead> 
+				`;
+		}
+
+
+</script>
+
+</body>
+
+</html>
