@@ -79,12 +79,12 @@
 		<p>&ensp;</p>
         <!-- 三相电源设置 --> 
         <h2>三相电源线电压设置</h2> 
-		<div class="row row-cols-lg-auto g-3 align-items-center">
+		<div class="row row-cols-sm-auto g-1 align-items-center">
 			<div class="col">
-				<label for="voltage" class="form-check-label">三相电源电压 (V):</label> 
+				<label for="voltage" class="form-check-label">电源电压 (V):</label> 
 			</div>
 			<div class="col">
-				<input type="number" id="voltage" class="form-control" value="380" aria-label="First name"> 
+				<input type="number" id="voltage" class="form-control" value="380" style="width: 100%; max-width: 100px;"> 
 			</div>
 			<!--
 			<label for="inductive_reactance">电源侧三相电感 (mH):</label> 
@@ -92,55 +92,61 @@
 			--> 
 			<div class="col">
 				<button onclick="addLoad()" class="btn btn-primary m-2">添加负载</button> 
+			</div>
+			<div class="col">
 				<button onclick="cleanLoad()" class="btn btn-primary m-2">清除列表</button>
 			</div>
 		</div>
 		<p>&ensp;</p>
         <!-- 负载列表 --> 
 		<h2>负载列表</h2> 
-        <table id="load_table" class="table table-hover"> 
-            <thead> 
-                <tr> 
-					<th>序号</th>
-                    <th>负载类型</th> 
-                    <th>有功功率 (kW)</th> 
-                    <th>电抗感量 (mH)</th> 
-					<th>负载电流 (A)</th>
-					<th>谐波电流 (A)</th>
-					<th>电流谐波 (%)</th>
-					<th>无功电流 (A)</th>
-					<th>功率因数 (PF)</th>
-                    <th>操作</th> 
-                </tr> 
-            </thead> 
-        </table> 
+		<div class="table-responsive">
+			<table id="load_table" class="table table-hover"> 
+				<thead> 
+					<tr> 
+						<th style="min-width: 60px;">序号</th>
+						<th style="min-width: 220px;">负载类型</th> 
+						<th style="min-width: 150px;">有功功率 (kW)</th> 
+						<th style="min-width: 150px;">电抗感量 (mH)</th> 
+						<th style="min-width: 120px;">负载电流 (A)</th>
+						<th style="min-width: 120px;">谐波电流 (A)</th>
+						<th style="min-width: 120px;">电流谐波 (%)</th>
+						<th style="min-width: 120px;">无功电流 (A)</th>
+						<th style="min-width: 120px;">功率因数 (PF)</th>
+						<th style="min-width: 80px;">操作</th> 
+					</tr> 
+				</thead> 
+			</table> 
+		</div>
 		<p>&ensp;</p>
         <!-- 结果显示 -->
 		<h2>电网数据</h2> 
-        <table id="load_results_table" class="table table-hover"> 
-            <thead> 
-                <tr> 
-					<th>负载数量</th>
-                    <th>有功功率</th> 
-                    <th>电网电流</th> 
-                    <th>谐波电流</th> 
-					<th>THDi</th>
-					<th>无功电流</th>
-					<th>功率因数</th>
-					<th>APF治理电流</th>
-                </tr> 
-                <tr> 
-					<td>负载数量</td>
-                    <td>有功功率</td> 
-                    <td>电网电流</td> 
-                    <td>谐波电流</td> 
-					<td>THDi</td>
-					<td>无功电流</td>
-					<td>功率因数</td>
-					<td>APF治理电流</td>
-                </tr> 
-            </thead> 
-        </table> 
+		<div class="table-responsive">
+			<table id="load_results_table" class="table table-hover"> 
+				<thead> 
+					<tr> 
+						<th>负载数量</th>
+						<th>有功功率</th> 
+						<th>电网电流</th> 
+						<th>谐波电流</th> 
+						<th>THDi</th>
+						<th>无功电流</th>
+						<th>功率因数</th>
+						<th>APF治理电流</th>
+					</tr> 
+					<tr> 
+						<td>负载数量</td>
+						<td>有功功率</td> 
+						<td>电网电流</td> 
+						<td>谐波电流</td> 
+						<td>THDi</td>
+						<td>无功电流</td>
+						<td>功率因数</td>
+						<td>APF治理电流</td>
+					</tr> 
+				</thead> 
+			</table> 
+		</div>
 		<div id="load_results"></div>
 
     </div> 
@@ -212,7 +218,6 @@
 </nav>
 
 <script>
-        let loadCounter = 0; 
         const loadTable = document.getElementById('load_table');  
         const loadResults = document.getElementById('load_results');  
 		const loadResultsTable = document.getElementById('load_results_table'); 
@@ -236,17 +241,27 @@
 			const cell9 = newRow.insertCell(9);
 			
 			cell0.textContent	= loadTable.rows.length - 1;
-            cell1.innerHTML		= `<select class="form-select" style="width: 100%; max-width: 200px;"><option>电解变频器(直流电抗)</option><option>电解变频器(交流电抗)</option><option>薄膜变频器(直流电抗)</option><option>薄膜变频器(交流电抗)</option><option>EC风机(交流电抗)</option></select>`; 
-            cell2.innerHTML		= `<input type="number" class="form-control" style="max-width: 120px;" value="5.5">`; 
-            cell3.innerHTML		= `<input type="number" class="form-control" style="max-width: 120px;" value="1.0">`; 
+            cell1.innerHTML		= `<select class="form-select" style="width: 100%; max-width: 250px; min-width: 220px;"><option>电解变频器(直流电抗)</option><option>电解变频器(交流电抗)</option><option>薄膜变频器(直流电抗)</option><option>薄膜变频器(交流电抗)</option><option>EC风机(交流电抗)</option></select>`; 
+            cell2.innerHTML		= `<input type="number" class="form-control" style="width: 120px;" value="5.5">`; 
+            cell3.innerHTML		= `<input type="number" class="form-control" style="width: 120px;" value="1.0">`; 
 			cell4.textContent	= '0';	//负载电流
 			cell5.textContent	= '0';	//谐波电流
 			cell6.textContent	= '0'	//电流谐波
 			cell7.textContent	= '0';	//无功电流
 			cell8.textContent	= '0';	//功率因数
             cell9.innerHTML	= `<button onclick="removeLoad(this)" class="btn btn btn-dark btn-sm">删除</button>`; 
- 
-            loadCounter++; 
+			
+			cell0.style = "min-width: 60px;";
+			cell1.style = "min-width: 80px;";
+			cell2.style = "min-width: 80px;";
+			cell3.style = "min-width: 80px;";
+			cell4.style = "min-width: 120px;";
+			cell5.style = "min-width: 120px;";
+			cell6.style = "min-width: 120px;";
+			cell7.style = "min-width: 120px;";
+			cell8.style = "min-width: 120px;";
+			cell9.style = "min-width: 80px;";
+			newRow.className = "table-secondary";
         } 
 
         function cleanLoad() {  
@@ -377,16 +392,16 @@
 			loadResultsTable.innerHTML = `
 				<thead> 
 					<tr> 
-						<th>负载数量</th>
-						<th>有功功率</th> 
-						<th>电网电流</th> 
-						<th>谐波电流</th> 
-						<th>THDi</th>
-						<th>无功电流</th>
-						<th>功率因数</th>
-						<th>APF治理电流</th>
+						<th style="min-width: 80px;">负载数量</th>
+						<th style="min-width: 80px;">有功功率</th> 
+						<th style="min-width: 80px;">电网电流</th> 
+						<th style="min-width: 80px;">谐波电流</th> 
+						<th style="min-width: 80px;">THDi</th>
+						<th style="min-width: 80px;">无功电流</th>
+						<th style="min-width: 80px;">功率因数</th>
+						<th style="min-width: 120px;">APF治理电流</th>
 					</tr> 
-					<tr> 
+					<tr class="table-secondary"> 
 						<td>${LoadNum}</td>
 						<td>${LoadPowerTotal.toFixed(2)}kW</td> 
 						<td>${LoadCurrent.toFixed(2)}A</td> 
@@ -394,7 +409,7 @@
 						<td>${LoadCurrentTHD.toFixed(2)}%</td>
 						<td>${LoadCurrentQ.toFixed(2)}A</td>
 						<td>${LoadPF.toFixed(2)}</td>
-						<td>${ApfCurrent.toFixed(2)}A</td>
+						<td class="table-danger">${ApfCurrent.toFixed(2)}A</td>
 					</tr> 
 				</thead> 
 				`;
