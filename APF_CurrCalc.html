@@ -74,29 +74,33 @@
 </div>
 
 
-
+	
     <div class="container"> 
 		<p>&ensp;</p>
+		<h2>电源属性</h2> 
         <!-- 三相电源设置 --> 
-        <h2>三相电源线电压设置</h2> 
-		<div class="row row-cols-sm-auto g-0 align-items-center">
-			<div class="col">
-				<label for="voltage" class="form-check-label">电源电压 (V):</label> 
+		<div class="d-flex justify-content-evenly">
+			<div class="container form-floating mb-3 mt-3">
+
+				<input type="text" class="form-control" id="voltage" placeholder=" " value="380">
+
+				<label for="email">&ensp;&ensp;在此输入电源线电压 (V):</label>
+
 			</div>
-			<div class="col">
-				<input type="number" id="voltage" class="form-control" value="380" style="width: 100%; max-width: 80px;"> 
-			</div>
-			<!--
-			<label for="inductive_reactance">电源侧三相电感 (mH):</label> 
-			<input type="number" id="inductive_reactance" value="0.2"> 
-			--> 
-			<div class="col">
-				<button onclick="addLoad()" class="btn btn-primary m-2">添加负载</button> 
-			</div>
-			<div class="col">
-				<button onclick="cleanLoad()" class="btn btn-primary m-2">清除列表</button>
-			</div>
+
+			<button class="btn btn-primary m-2" style="max-width: 60px;" onclick="addLoad()">
+
+			添加负载
+
+			</button>
+			
+			<button class="btn btn-primary m-2" style="max-width: 60px;" onclick="cleanLoad()">
+
+			清除列表
+
+			</button>
 		</div>
+		
 		<p>&ensp;</p>
         <!-- 负载列表 --> 
 		<h2>负载列表</h2> 
@@ -221,7 +225,7 @@
         const loadTable = document.getElementById('load_table');  
         const loadResults = document.getElementById('load_results');  
 		const loadResultsTable = document.getElementById('load_results_table'); 
- 
+
 		let intervalID = setInterval(function() {
 			Calculate();
 		}, 200);
@@ -414,7 +418,6 @@
 				</thead> 
 				`;
 		}
-
 	addLoad();
 </script>
 
